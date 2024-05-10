@@ -5,17 +5,14 @@ import { Outlet } from 'react-router-dom'
 
 function Home() {
   return (
-    <div className='flex min-h-screen grid grid-cols-6'>
+    <div className='flex'>
       <Sidebar/>
-      <div className='col-span-5'>
-        <div className='h-screen w-full flex flex-col'>
+        <div className='h-screen w-full flex-1'>
           <Header />
-          <div className='flex-grow'>
-            <Outlet />
-          </div>
+          <Outlet />
           <Footer />
         </div>        
-      </div>
+      
     </div>
   )
 }

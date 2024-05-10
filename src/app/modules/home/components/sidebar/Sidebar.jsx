@@ -1,42 +1,66 @@
 import { RiBallPenFill, RiBookOpenFill } from "react-icons/ri"
 import { Link } from "react-router-dom"
-import logousil from '../../../../../assets/logo-usil.jpg'
+import logoUsil from '../../../../../assets/logo-usil.png'
 import { IoPricetags } from "react-icons/io5"
+import { BsArrowLeftShort } from "react-icons/bs"
+import { useState } from "react"
 
-function Sidebar() {
+const Sidebar = () => {
+  const [open, setOpen] = useState(true);
+  const Menus = [
+    { title: "Libros", icon: <RiBookOpenFill />, to: "books" }, 
+    { title: "Autores", icon: <RiBallPenFill />, to: "authors" }, 
+    { title: "Categorías", icon: <IoPricetags />, to: "categories" }, 
+  ];
+
   return (
-    <div className='bg-[#1C2674] col-span-1 p-8'>
-      {/*Logo*/}
-      <div className="text-center mb-8">
-        <img src={logousil} />
+    <>
+      <div className={`bg-usil-color h-screen p-5 pt-5
+        ${open ? "w-72" : "w-20"} duration-300 relative`}>
+        <BsArrowLeftShort className={`bg-white text-usil-color 
+          text-3xl rounded-full absolute -right-3 top-6 border 
+          border-usil-color cursor-pointer ${!open && "rotate-180"}`} 
+          onClick={() => setOpen(!open)}/>
+        {/* LOGO */}
+        <div className="flex gap-x-4 items-center">
+          <img
+            src={ logoUsil}
+            className={`border-2 border-white rounded cursor-pointer duration-500 ${
+              open && "rotate-[360deg]"
+            }`}
+          />
+          <h1
+            className={`text-white origin-left font-medium text-xl duration-200 ${
+              !open && "scale-0"
+            }`}
+          >
+            USIL
+          </h1>
+        </div>
+
+        {/* MODULOS */}
+        <ul className="pt-2">
+          {Menus.map((menu, index) => (
+            <>
+              <li>
+                <Link to={menu.to} key={index} className="text-white text-sm flex 
+                items-center gap-x-4 cursor-pointer p-2
+                hover:bg-white hover:text-usil-color rounded-lg mt-2">
+                  <span className="text-2xl block float-left">
+                    {menu.icon}
+                  </span>
+                  <span className={`text-base font-medium flex-1 
+                    duration-200 ${!open && "hidden"}`}>
+                    {menu.title}
+                  </span>
+                </Link>
+              </li>
+            </>
+          ))}
+        </ul>        
       </div>
-      {/*Nav*/}
-      <nav>
-        <ul>
-          <li>
-            <Link 
-              to='books' className='flex items-center gap-4 hover:bg-white p-4 text-white hover:text-[#1C2674] rounded-lg 
-              transition-colors font-semibold'>
-              <RiBookOpenFill />
-              Libros          
-            </Link>
-            <Link 
-              to='authors' className='flex items-center gap-4 hover:bg-white p-4 text-white hover:text-[#1C2674] rounded-lg 
-              transition-colors font-semibold'>
-              <RiBallPenFill />
-              Autores
-            </Link>
-            <Link 
-              to='categories' className='flex items-center gap-4 hover:bg-white p-4 text-white hover:text-[#1C2674] rounded-lg 
-              transition-colors font-semibold'>
-              <IoPricetags />
-              Categorías
-            </Link>
-          </li>
-        </ul>
-      </nav>   
-      
-    </div>    
+    </>
+    
   )
 }
 
