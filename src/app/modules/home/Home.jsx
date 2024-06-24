@@ -7,7 +7,7 @@ function Home() {
   return (
     <div className='flex'>
       <Sidebar/>
-        <div className='h-screen w-full flex-1'>
+        <div className='h-screen w-full flex-2'>
           <Header />
           <Outlet />
           <Footer />
