@@ -12,7 +12,8 @@ function Libros() {
     const [isAddOpen, setAddOpen] = useState(false);
     const [newData, setNewData] = useState({
         titulo: '', descripcion: '', precio_unitario: '', stock: '', estado: '',
-        fecha_publicacion: '', ruta_img: '', id_categoria: '', id_autor: '', id_editorial: ''
+        fecha_publicacion: '', ruta_img: '', id_categoria: '', id_autor: '', id_editorial: '',
+        num_ingreso: '', estado_ejemplar: true, file: null
     });
     const [isDeleteOpen, setDeleteOpen] = useState(false);
     const [deleteData, setDeleteData] = useState(null);
@@ -59,17 +60,58 @@ function Libros() {
 
     const addLibro = async (newData) => {
         try {
-            const response = await axiosPrivate.post('/libros', newData);
+            const formData = new FormData();
+            formData.append('file', newData.file);
+            formData.append('data', JSON.stringify({
+                titulo: newData.titulo,
+                descripcion: newData.descripcion,
+                precio_unitario: newData.precio_unitario,
+                stock: newData.stock,
+                estado: newData.estado,
+                fecha_publicacion: newData.fecha_publicacion,
+                ruta_img: newData.ruta_img,
+                id_categoria: newData.id_categoria,
+                id_autor: newData.id_autor,
+                id_editorial: newData.id_editorial
+            }));
+
+            const libroResponse = await axiosPrivate.post('/libros', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
+            const ejemplarResponse = await axiosPrivate.post('/ejemplares', {
+                id_libro: libroResponse.data.id,
+                num_ingreso: newData.num_ingreso,
+                estado_ejemplar: newData.estado_ejemplar,
+            });
+
             getLibros();
-            return response.data;
+            return { libro: libroResponse.data, ejemplar: ejemplarResponse.data };
         } catch (error) {
-            console.error("Error al agregar el libro:", error);
+            console.error("Error al agregar el libro y ejemplar:", error);
         }
     };
 
     const editLibro = async (id, updatedData) => {
         try {
-            const response = await axiosPrivate.put(`/libros/${id}`, updatedData);
+            const formData = new FormData();
+            formData.append('file', updatedData.file);
+            formData.append('data', JSON.stringify({
+                titulo: updatedData.titulo,
+                descripcion: updatedData.descripcion,
+                precio_unitario: updatedData.precio_unitario,
+                stock: updatedData.stock,
+                estado: updatedData.estado,
+                fecha_publicacion: updatedData.fecha_publicacion,
+                ruta_img: updatedData.ruta_img,
+                id_categoria: updatedData.id_categoria,
+                id_autor: updatedData.id_autor,
+                id_editorial: updatedData.id_editorial
+            }));
+
+            const response = await axiosPrivate.put(`/libros/${id}`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
             getLibros();
             return response.data;
         } catch (error) {
@@ -116,6 +158,7 @@ function Libros() {
                 id_categoria: editData.id_categoria,
                 id_autor: editData.id_autor,
                 id_editorial: editData.id_editorial,
+                file: editData.file
             };
             await editLibro(editData.id, updatedData);
             handleEditClose();
@@ -132,7 +175,8 @@ function Libros() {
         setAddOpen(false);
         setNewData({
             titulo: '', descripcion: '', precio_unitario: '', stock: '', estado: '',
-            fecha_publicacion: '', ruta_img: '', id_categoria: '', id_autor: '', id_editorial: ''
+            fecha_publicacion: '', ruta_img: '', id_categoria: '', id_autor: '', id_editorial: '',
+            num_ingreso: '', estado_ejemplar: true, file: null
         });
     };
 
@@ -276,14 +320,6 @@ function Libros() {
                         onChange={(e) => setEditData({ ...editData, ruta_img: e.target.value })}
                     />
                     <TextField
-                        margin="dense"
-                        label="Categoría"
-                        type="text"
-                        fullWidth
-                        value={editData?.id_categoria || ''}
-                        onChange={(e) => setEditData({ ...editData, id_categoria: e.target.value })}
-                    />
-                    <TextField
                         select
                         margin="dense"
                         label="Autor"
@@ -318,6 +354,25 @@ function Libros() {
                         fullWidth
                         value={editData?.estado ? 1 : 0}
                         onChange={(e) => setEditData({ ...editData, estado: e.target.value === 1 })}
+                    >
+                        <MenuItem value={1}>Activo</MenuItem>
+                        <MenuItem value={0}>Inactivo</MenuItem>
+                    </TextField>
+                    <TextField
+                        margin="dense"
+                        label="Número de Ingreso"
+                        type="number"
+                        fullWidth
+                        value={editData?.num_ingreso || ''}
+                        onChange={(e) => setEditData({ ...editData, num_ingreso: e.target.value })}
+                    />
+                    <TextField
+                        select
+                        margin="dense"
+                        label="Estado del Ejemplar"
+                        fullWidth
+                        value={editData?.estado_ejemplar ? 1 : 0}
+                        onChange={(e) => setEditData({ ...editData, estado_ejemplar: e.target.value === 1 })}
                     >
                         <MenuItem value={1}>Activo</MenuItem>
                         <MenuItem value={0}>Inactivo</MenuItem>
@@ -381,14 +436,6 @@ function Libros() {
                         onChange={(e) => setNewData({ ...newData, ruta_img: e.target.value })}
                     />
                     <TextField
-                        margin="dense"
-                        label="Categoría"
-                        type="text"
-                        fullWidth
-                        value={newData.id_categoria}
-                        onChange={(e) => setNewData({ ...newData, id_categoria: e.target.value })}
-                    />
-                    <TextField
                         select
                         margin="dense"
                         label="Autor"
@@ -423,6 +470,25 @@ function Libros() {
                         fullWidth
                         value={newData.estado}
                         onChange={(e) => setNewData({ ...newData, estado: e.target.value })}
+                    >
+                        <MenuItem value={1}>Activo</MenuItem>
+                        <MenuItem value={0}>Inactivo</MenuItem>
+                    </TextField>
+                    <TextField
+                        margin="dense"
+                        label="Número de Ingreso"
+                        type="number"
+                        fullWidth
+                        value={newData.num_ingreso}
+                        onChange={(e) => setNewData({ ...newData, num_ingreso: e.target.value })}
+                    />
+                    <TextField
+                        select
+                        margin="dense"
+                        label="Estado del Ejemplar"
+                        fullWidth
+                        value={newData.estado_ejemplar ? 1 : 0}
+                        onChange={(e) => setNewData({ ...newData, estado_ejemplar: e.target.value === 1 })}
                     >
                         <MenuItem value={1}>Activo</MenuItem>
                         <MenuItem value={0}>Inactivo</MenuItem>
