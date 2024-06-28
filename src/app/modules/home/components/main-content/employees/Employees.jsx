@@ -1,28 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { Box, Button, Typography, Paper, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Grid, TextField } from '@mui/material';
-import useAxiosPrivate from '../../../../../../hooks/useAxiosPrivate'; // Ajusta esta ruta según tu estructura
+import useAxiosPrivate from '../../../../../../hooks/useAxiosPrivate';
 
 function Empleados() {
     const [empleados, setEmpleados] = useState([]);
     const [editData, setEditData] = useState(null);
     const [isEditOpen, setEditOpen] = useState(false);
     const [isAddOpen, setAddOpen] = useState(false);
-    const [newData, setNewData] = useState({ nombre: '', apellido: '', dni: '', estado: true });
+    const [newData, setNewData] = useState({
+        nombre: '', apellido: '', dni: '', estado: '',
+        mail: '', contrasena: '', rol: ''
+    });
     const [isDeleteOpen, setDeleteOpen] = useState(false);
     const [deleteData, setDeleteData] = useState(null);
     const axiosPrivate = useAxiosPrivate();
 
     const getEmpleados = async () => {
         try {
-            const response = await axiosPrivate.get('/empleados');
-            console.log("Datos obtenidos del servidor:", response.data);
+            const response = await axiosPrivate.get('/catalogoUsuarios');
             setEmpleados(response.data.map((item) => ({
                 id: item.id_empleado,
                 nombre: item.nombre,
                 apellido: item.apellido,
-                dni: item.dni,
                 estado: item.estado ? 'Activo' : 'Inactivo',
+                mail: item.mail,
+                rol: item.rol
             })));
         } catch (error) {
             console.error("Error al obtener los datos:", error);
@@ -31,28 +34,53 @@ function Empleados() {
 
     const addEmpleado = async (newData) => {
         try {
-            const response = await axiosPrivate.post('/empleados', newData);
+            const empleadoResponse = await axiosPrivate.post('/auth/empleados', {
+                nombre: newData.nombre,
+                apellido: newData.apellido,
+                dni: newData.dni,
+                estado: true
+            });
+
+            const usuarioResponse = await axiosPrivate.post('/auth/register', {
+                mail: newData.mail,
+                contrasena: newData.contrasena,
+                estado: true,
+                rol: newData.rol
+            });
+
             getEmpleados();
-            return response.data;
+            return { empleado: empleadoResponse.data, usuario: usuarioResponse.data };
         } catch (error) {
-            console.error("Error al agregar el empleado:", error);
+            console.error("Error al agregar el empleado y usuario:", error);
         }
     };
 
     const editEmpleado = async (id, updatedData) => {
         try {
-            const response = await axiosPrivate.put(`/empleados/${id}`, updatedData);
-            console.log("Datos enviados al servidor para editar:", updatedData);
+            const empleadoResponse = await axiosPrivate.put(`/empleados/${id}`, {
+                nombre: updatedData.nombre,
+                apellido: updatedData.apellido,
+                dni: updatedData.dni,
+                estado: updatedData.estado
+            });
+
+            const usuarioResponse = await axiosPrivate.put(`/auth/register/${id}`, {
+                mail: updatedData.mail,
+                contrasena: updatedData.contrasena,
+                estado: updatedData.estado,
+                rol: updatedData.rol
+            });
+
             getEmpleados();
-            return response.data;
+            return { empleado: empleadoResponse.data, usuario: usuarioResponse.data };
         } catch (error) {
-            console.error("Error al editar el empleado:", error);
+            console.error("Error al editar el empleado y usuario:", error);
         }
     };
 
     const deleteEmpleado = async (id) => {
         try {
-            const response = await axiosPrivate.delete(`/empleados/${id}`);
+            const response = await axiosPrivate.patch(`/empleados/${id}`, { estado: false });
             getEmpleados();
             return response.data;
         } catch (error) {
@@ -81,6 +109,9 @@ function Empleados() {
                 apellido: editData.apellido,
                 dni: editData.dni,
                 estado: editData.estado,
+                mail: editData.mail,
+                contrasena: editData.contrasena,
+                rol: editData.rol
             };
             await editEmpleado(editData.id, updatedData);
             handleEditClose();
@@ -95,7 +126,10 @@ function Empleados() {
 
     const handleAddClose = () => {
         setAddOpen(false);
-        setNewData({ nombre: '', apellido: '', dni: '', estado: true });
+        setNewData({
+            nombre: '', apellido: '', dni: '', estado: '',
+            mail: '', contrasena: '', rol: ''
+        });
     };
 
     const handleAddSave = async () => {
@@ -130,8 +164,9 @@ function Empleados() {
         { field: 'id', headerName: 'ID', width: 120 },
         { field: 'nombre', headerName: 'Nombre', width: 200 },
         { field: 'apellido', headerName: 'Apellido', width: 200 },
-        { field: 'dni', headerName: 'DNI', width: 160 },
         { field: 'estado', headerName: 'Estado', width: 120 },
+        { field: 'mail', headerName: 'Mail', width: 200 },
+        { field: 'rol', headerName: 'Tipo de Rol', width: 150 },
         {
             field: 'acciones',
             headerName: 'Acciones',
@@ -208,6 +243,33 @@ function Empleados() {
                         onChange={(e) => setEditData({ ...editData, dni: e.target.value })}
                     />
                     <TextField
+                        margin="dense"
+                        label="Mail"
+                        type="email"
+                        fullWidth
+                        value={editData?.mail || ''}
+                        onChange={(e) => setEditData({ ...editData, mail: e.target.value })}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Contraseña"
+                        type="password"
+                        fullWidth
+                        value={editData?.contrasena || ''}
+                        onChange={(e) => setEditData({ ...editData, contrasena: e.target.value })}
+                    />
+                    <TextField
+                        select
+                        margin="dense"
+                        label="Tipo de Rol"
+                        fullWidth
+                        value={editData?.rol || ''}
+                        onChange={(e) => setEditData({ ...editData, rol: e.target.value })}
+                    >
+                        <MenuItem value="USER">USER</MenuItem>
+                        <MenuItem value="ADMIN">ADMIN</MenuItem>
+                    </TextField>
+                    <TextField
                         select
                         margin="dense"
                         label="Estado"
@@ -253,15 +315,31 @@ function Empleados() {
                         onChange={(e) => setNewData({ ...newData, dni: e.target.value })}
                     />
                     <TextField
+                        margin="dense"
+                        label="Mail"
+                        type="email"
+                        fullWidth
+                        value={newData.mail}
+                        onChange={(e) => setNewData({ ...newData, mail: e.target.value })}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Contraseña"
+                        type="password"
+                        fullWidth
+                        value={newData.contrasena}
+                        onChange={(e) => setNewData({ ...newData, contrasena: e.target.value })}
+                    />
+                    <TextField
                         select
                         margin="dense"
-                        label="Estado"
+                        label="Tipo de Rol"
                         fullWidth
-                        value={newData.estado}
-                        onChange={(e) => setNewData({ ...newData, estado: e.target.value })}
+                        value={newData.rol}
+                        onChange={(e) => setNewData({ ...newData, rol: e.target.value })}
                     >
-                        <MenuItem value={1}>Activo</MenuItem>
-                        <MenuItem value={0}>Inactivo</MenuItem>
+                        <MenuItem value="USER">USER</MenuItem>
+                        <MenuItem value="ADMIN">ADMIN</MenuItem>
                     </TextField>
                 </DialogContent>
                 <DialogActions>
