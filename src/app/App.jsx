@@ -8,7 +8,9 @@ import Login from './modules/auth/Login'
 import ForgetPassword from './modules/auth/ForgetPassword'
 import Unauthorized from './modules/auth/components/Unauthorized'
 import RequiredAuth from './modules/auth/components/RequiredAuth'
-import Sales from './modules/home/components/main-content/sales/Sales'
+import LayoutSales from './modules/home/components/main-content/sales/components/LayoutSales'
+import Catalog from './modules/home/components/main-content/sales/pages/Catalog'
+import Detail from './modules/home/components/main-content/sales/pages/Detail'
 
 function App() {
     return (
@@ -24,7 +26,10 @@ function App() {
                   <Route path='books' element={<Books />}/>
                   <Route path='authors' element={<Authors />}/>
                   <Route path='editoriales' element={<Editoriales />}/>
-                  <Route path='sales' element={<Sales />}/>
+                  <Route path='sales' element={<LayoutSales />}>
+                        <Route index element={<Catalog />} />
+                        <Route path=':slug' element={<Detail />}/>
+                  </Route>
               </Route>
             </Route>
             <Route element={<RequiredAuth allowedRoles={['ADMIN']}/>}>
