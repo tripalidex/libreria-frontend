@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import useAxiosPrivate from "../../../../../../../hooks/useAxiosPrivate";
 import { TfiShoppingCart } from "react-icons/tfi";
+import img from "../../../../../../../assets/static/chivofiesta.jpg";
 
 function Catalog() {
     const axiosPrivate = useAxiosPrivate();
     const [libros, setLibros] = useState([]);
-    
     const getLibros = async () => {
         try {
             const response = await axiosPrivate.get('/catalogoLibros');
@@ -32,11 +32,17 @@ function Catalog() {
         getLibros();
     }, []);
 
+    /*const getBasePath = () => {
+        return "../../../../../../../assets/";
+    };
+    `${getBasePath()}${libro.ruta_img}`
+    */
+
     return (
         <div className='grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-5'>
             {libros.map((libro) => (<>
                 <div className='bg-white p-5 rounded-xl shadow-sm'>
-                    <img src="" alt='' className='w-full h-80 object-cover object-top drop-shadow-[0_80px_30px_#0007]' />
+                    <img src={img} alt='' className='w-full h-80 object-cover object-top drop-shadow-[0_80px_30px_#0007]' />
                     <h3 className='text-2xl py-3 text-center font-medium'>{libro.titulo}</h3>
                     <div className='flex justify-between items-center'>
                         <p>
