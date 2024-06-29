@@ -7,10 +7,13 @@ import Login from './modules/auth/Login'
 import ForgetPassword from './modules/auth/ForgetPassword'
 import Unauthorized from './modules/auth/components/Unauthorized'
 import RequiredAuth from './modules/auth/components/RequiredAuth'
-import Sales from './modules/home/components/main-content/sales/Sales'
+import LayoutSales from './modules/home/components/main-content/sales/components/LayoutSales'
+import Catalog from './modules/home/components/main-content/sales/pages/Catalog'
+import Detail from './modules/home/components/main-content/sales/pages/Detail'
 import LayoutBooks from './modules/home/components/main-content/books/LayoutBooks'
 import Books from './modules/home/components/main-content/books/components/Books'
 import Copies from './modules/home/components/main-content/books/components/Copies'
+
 
 function App() {
     return (
@@ -24,7 +27,10 @@ function App() {
             <Route element={<RequiredAuth allowedRoles={['ADMIN', 'USER']}/>}>
                 <Route path='/home' element={<Home />}>
                     <Route index element={<Navigate to="sales" />} />
-                    <Route path='sales' element={<Sales />}/>
+                      <Route path='sales' element={<LayoutSales />}>
+                        <Route index element={<Catalog />} />
+                        <Route path=':slug' element={<Detail />}/>
+                  </Route>
                     <Route path='inventory' element={<LayoutBooks />}>
                         <Route index element={<Navigate to="books" />} />
                         <Route path='books' element={<Books />}/>
