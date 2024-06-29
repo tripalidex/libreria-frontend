@@ -76,7 +76,7 @@ function AccountMenu() {
           Cambiar contraseña
         </MenuItem>
         <MenuItem onClick={handleClose}>
-          <Link to="/">
+          <Link to="/login">
           <ListItemIcon>
             <Logout fontSize="small" />
           </ListItemIcon>
