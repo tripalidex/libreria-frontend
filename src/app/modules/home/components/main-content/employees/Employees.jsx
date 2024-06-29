@@ -9,7 +9,7 @@ function Empleados() {
     const [isEditOpen, setEditOpen] = useState(false);
     const [isAddOpen, setAddOpen] = useState(false);
     const [newData, setNewData] = useState({
-        nombre: '', apellido: '', dni: '', estado: '',
+        nombre: '', apellido: '', dni: '',
         mail: '', contrasena: '', rol: ''
     });
     const [isDeleteOpen, setDeleteOpen] = useState(false);
@@ -27,6 +27,7 @@ function Empleados() {
                 mail: item.mail,
                 rol: item.rol
             })));
+            console.log()
         } catch (error) {
             console.error("Error al obtener los datos:", error);
         }
@@ -40,16 +41,24 @@ function Empleados() {
                 dni: newData.dni,
                 estado: true
             });
-
-            const usuarioResponse = await axiosPrivate.post('/auth/register', {
-                mail: newData.mail,
-                contrasena: newData.contrasena,
-                estado: true,
-                rol: newData.rol
-            });
-
-            getEmpleados();
-            return { empleado: empleadoResponse.data, usuario: usuarioResponse.data };
+            console.log()
+            if (empleadoResponse.status === 200) {
+                const usuarioResponse = await axiosPrivate.post('/auth/register', {
+                    mail: newData.mail,
+                    contrasena: newData.contrasena,
+                    estado: true,
+                    rol: newData.rol,
+                    id_empleado: empleadoResponse.data.id_empleado
+                });
+                if (usuarioResponse.status === 200) {
+                    getEmpleados();
+                    return { empleado: empleadoResponse.data, usuario: usuarioResponse.data };
+                } else {
+                    console.error("Error al agregar el empleado");
+                }
+            } else {
+                console.error("Error al agregar el usuario");
+            }
         } catch (error) {
             console.error("Error al agregar el empleado y usuario:", error);
         }
@@ -126,6 +135,7 @@ function Empleados() {
 
     const handleAddClose = () => {
         setAddOpen(false);
+        console.log(newData);
         setNewData({
             nombre: '', apellido: '', dni: '', estado: '',
             mail: '', contrasena: '', rol: ''
@@ -338,8 +348,8 @@ function Empleados() {
                         value={newData.rol}
                         onChange={(e) => setNewData({ ...newData, rol: e.target.value })}
                     >
-                        <MenuItem value="USER">USER</MenuItem>
-                        <MenuItem value="ADMIN">ADMIN</MenuItem>
+                        <MenuItem value="1">USER</MenuItem>
+                        <MenuItem value="2">ADMIN</MenuItem>
                     </TextField>
                 </DialogContent>
                 <DialogActions>
