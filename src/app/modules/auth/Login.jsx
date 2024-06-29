@@ -12,7 +12,7 @@ function Login() {
 
     const navigate = useNavigate();
     const location = useLocation();
-    const from = location.state?.from?.pathname || "/home/books";
+    const from = location.state?.from?.pathname || "/home";
 
     const [showPassword, setShowPassword] = useState(false);
     const handleShowPassword = () => {
